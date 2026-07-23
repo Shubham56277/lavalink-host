@@ -113,12 +113,14 @@ plugins:
     allowDirectVideoIds: true
     allowSearch: true
     clients:
-      - ANDROID_MUSIC
       - MUSIC
+      - ANDROID_VR
+      - WEB
+      - WEBEMBEDDED
     enabled: true
     oauth:
-      enabled: true
-      skipInitialization: false
+      enabled: false
+      skipInitialization: true
 sentry:
   dsn: ""
   environment: ""
