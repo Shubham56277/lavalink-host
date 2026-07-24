@@ -1,23 +1,30 @@
 lavalink:
   plugins:
+    # Advanced search endpoint (stable, Lavalink v4 compatible)
     - dependency: com.github.topi314.lavasearch:lavasearch-plugin:1.0.0
       snapshot: false
 
+    # Spotify, Apple Music, Flowery TTS and other sources (latest stable)
     - dependency: com.github.topi314.lavasrc:lavasrc-plugin:4.8.3
       snapshot: false
 
+    # SponsorBlock segment skipping (latest stable)
     - dependency: com.github.topi314.sponsorblock:sponsorblock-plugin:3.0.1
       snapshot: false
 
+    # YouTube source plugin replacing built-in source (latest stable)
     - dependency: dev.lavalink.youtube:youtube-plugin:1.18.1
       snapshot: false
 
   pluginsDir: ./plugins
 
   server:
-    password: "SowardLavalink2025"
+    # Password is read from the LAVALINK_PASSWORD environment variable.
+    # Do not hardcode secrets here.
+    password: "${LAVALINK_PASSWORD}"
 
     sources:
+      # Built-in YouTube source is disabled; youtube-plugin handles YouTube.
       youtube: false
       bandcamp: false
       soundcloud: true
@@ -59,24 +66,32 @@ plugins:
     allowDirectVideoIds: true
     allowDirectPlaylistIds: true
 
+    # Clients are tried in order. TV removed because it requires OAuth sign-in.
+    # TVHTML5_SIMPLY: added in v1.18.0, playlist support fix in v1.18.1, supports video/search/mix.
+    # ANDROID_VR: stable, supports video/search/playlist/mix including livestreams.
+    # WEB: stable, full support including livestreams.
+    # MWEB: stable, full support including livestreams.
+    # MUSIC: ytmsearch: prefix only, no standalone playback — used by lavasrc providers.
     clients:
-      - TV
       - TVHTML5_SIMPLY
       - ANDROID_VR
-      - MWEB
       - WEB
+      - MWEB
       - MUSIC
 
-    oauth:
-      enabled: true
-      skipInitialization: false
+    # OAuth is removed entirely. No refresh token, no skipInitialization.
+    # If YouTube blocks requests with "Sign in to confirm you're not a bot",
+    # that is a host IP / rate-limit issue. Do not add OAuth without a burner account.
 
   lavasrc:
+    # Provider order: YouTube first (most accurate), YouTube Music second,
+    # ISRC lookup third, SoundCloud last as fallback only.
+    # SoundCloud is not first because its results may not match the intended track.
     providers:
-      - "scsearch:%QUERY%"
+      - "ytsearch:%QUERY%"
       - "ytmsearch:%QUERY%"
       - "ytsearch:\"%ISRC%\""
-      - "ytsearch:%QUERY%"
+      - "scsearch:%QUERY%"
 
     sources:
       spotify: true
@@ -120,7 +135,7 @@ plugins:
       vkmusic: false
 
 server:
-  port: 2333
+  port: "${PORT:2333}"
   address: 0.0.0.0
 
   http2:
@@ -130,7 +145,8 @@ logging:
   level:
     root: INFO
     lavalink: INFO
-    dev.lavalink.youtube: DEBUG
+    # Reduced from DEBUG to INFO to avoid verbose output without exposing internals.
+    dev.lavalink.youtube: INFO
 
   file:
     path: ./logs/
@@ -138,12 +154,13 @@ logging:
     max-history: 5
 
   request:
-    enabled: true
-    includeClientInfo: true
+    # Request logging disabled to avoid exposing headers or payloads in logs.
+    enabled: false
+    includeClientInfo: false
     includeHeaders: false
     includePayload: false
-    includeQueryString: true
-    maxPayloadLength: 10000
+    includeQueryString: false
+    maxPayloadLength: 0
 
   logback:
     rollingpolicy:
