@@ -119,7 +119,7 @@ plugins:
       - WEBEMBEDDED
     enabled: true
     oauth:
-      enabled: false
+      enabled: true
       skipInitialization: true
 sentry:
   dsn: ""
